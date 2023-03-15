@@ -1,0 +1,279 @@
+// ConsoleApplication52.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include <iostream>
+using namespace std;
+
+
+class bankinfo
+{
+protected:
+	double balance;
+	int numberofdeposits;
+	double numberofwithdrawals;
+	double annualinterestrate;
+	double monthlyservicecharge;
+	double monthlyrate;
+	double monthlyinterest;
+
+public:
+	bankinfo() {
+		balance = 0;
+		numberofdeposits = 0;
+		numberofwithdrawals = 0;
+		annualinterestrate = 0;
+		monthlyservicecharge = 0;
+	}
+	bankinfo(double b, double a) {
+		balance = b;
+		annualinterestrate = a;
+		numberofdeposits = 0;
+		numberofwithdrawals = 0;
+		monthlyservicecharge = 0;
+	}
+	void setbalance(int f) {
+		balance = f;
+	}
+	double getbalance() {
+		return balance;
+	}
+	
+	double getnumberodeposits() {
+		return numberofdeposits;
+	}
+
+	double getnumberofwithdrawals() {
+		return numberofwithdrawals;
+	}
+	void setannual(double b) {
+		annualinterestrate = b;
+	}
+	virtual void deposit(int deposit) {
+		balance += deposit;
+		numberofdeposits++;
+	}
+	virtual void withdraw(int withdraw) {
+		balance -= withdraw;
+		numberofwithdrawals++;
+	}
+	virtual void calcinterest() {
+
+		monthlyrate = (annualinterestrate / 12);
+		monthlyinterest = balance * monthlyrate;
+		balance += monthlyinterest;
+	}
+	virtual void monthlyproc() {
+		// btshel elservice mn elbalance
+		balance -= monthlyservicecharge;
+		// call func 3shan tzwed el monthly rate
+		calcinterest();
+		numberofdeposits = 0;
+		numberofwithdrawals = 0;
+		monthlyservicecharge = 0;
+	}
+	virtual void printdetails()
+	{
+		cout << " the balance info:" << getbalance() << endl;
+		cout << " the number of deposit : " << numberofdeposits << endl;
+		cout << " the number of withdrawals:" << numberofwithdrawals << endl;
+
+	}
+
+};
+
+
+class savingacc : public bankinfo {
+private:
+	bool status;
+public:
+	savingacc(double c, double y) :bankinfo(c, y) {
+		if (balance < 25) {
+			status = false;
+		}if (balance >= 25) {
+			status = true;
+		};
+	}
+	void setstatus() {
+		if (balance < 25) {
+			status = 0;
+		}if (balance >= 25) {
+			status = 1;
+		}
+	}
+	bool getstatus()const {
+		return status;
+	}
+	void withdraw(int x) {
+
+		if (!status) {
+			cout << "inactive\n ";
+		}
+		else {
+			bankinfo::withdraw(x);
+			setstatus();
+		}
+	}
+	void deposit(int y) {
+
+		bankinfo::deposit(y);
+		setstatus();
+	}
+	void monthlyproc() {
+		if (numberofwithdrawals > 4) {
+			monthlyservicecharge = numberofwithdrawals - 4;
+		}
+		bankinfo::monthlyproc();
+		setstatus();
+	}
+
+	virtual void printdeatils() {
+
+		bankinfo::printdetails();
+		cout << "the status is:" << status << endl;
+
+	}
+
+
+
+};
+
+class checkaccount :public  bankinfo
+{
+public:
+	void withdraw(int y) {
+		if (y > balance) {
+			balance -= 15;
+		}
+		else {
+			bankinfo::withdraw(y);
+		}
+	}
+	void monthlyproc() {
+		monthlyservicecharge = 5 + 0.1 * (numberofwithdrawals);
+		bankinfo::monthlyproc();
+	}
+};
+
+class loan_class :public bankinfo
+{
+private:
+	int loan_duration;
+	double interest_loan;
+	bool status;
+	
+public:
+
+	loan_class()
+	{
+		loan_duration = 0;
+		interest_loan = 0;
+		status = 0;
+	}
+
+	void setLoan_duraion(int x) {
+		loan_duration = x;
+	}
+
+	void setInterest_loan(double x) {
+		interest_loan = x;
+	}
+
+	void loan1(int x)
+	{
+		int y = balance;
+		if (balance < 25) 
+		{
+			status = 0;
+			cout << "there is no activated account" << endl;
+		}
+		else if (balance >= 25)
+		{
+			status = 1;
+
+			int loan = x;
+			cout << "amount of loan is :" << loan;
+			balance += loan;
+		}
+	}
+
+	double charges ()
+	{
+		return (balance * interest_loan)/ loan_duration;
+	}
+
+	void displayloan()
+	{
+		cout << endl;
+		cout << "month principal: " << charges() << endl;
+		cout << "total balance with the loan :" << bankinfo::getbalance();
+	}
+
+};
+
+int main()
+{
+
+	bankinfo s(2000, 0.1);
+	s.deposit(500);
+	s.withdraw(100);
+	s.calcinterest();
+	s.printdetails();
+	//call inactive saving account class
+	savingacc k(15, 0.1);
+	k.setstatus();
+	cout << k.getstatus() << endl;
+	//calling active saving account class
+	savingacc p(500, 0.1);
+	p.setstatus();
+	cout << p.getstatus() << endl;
+	//calling monthly procedure saving acc class
+	savingacc m(5000, 0.1);
+	m.withdraw(0);
+	m.monthlyproc();
+	cout << "the value of withdraw" << endl;
+	m.getnumberofwithdrawals();
+	cout << m.getbalance() << endl;
+	cout << m.getstatus() << endl;
+
+	//calling check acc more than balance
+	checkaccount t;
+	t.withdraw(2600);
+	t.printdetails();
+
+	//calling check acc less than balance
+	checkaccount r;
+	r.withdraw(2600);
+	r.printdetails();
+
+	//calling check acc monthly procedure
+	checkaccount b;
+	b.withdraw(200);
+	b.monthlyproc();
+	cout << m.getbalance();
+
+	cout << "1";
+
+	
+	
+	// loan class	
+	loan_class L;
+	L.setbalance(1000);
+	L.loan1(1000);
+	L.setInterest_loan(0.1);
+	L.setLoan_duraion(12);
+	L.displayloan();
+	
+	
+
+}
+
+// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
+// Debug program: F5 or Debug > Start Debugging menu
+
+// Tips for Getting Started: 
+//   1. Use the Solution Explorer window to add/manage files
+//   2. Use the Team Explorer window to connect to source control
+//   3. Use the Output window to see build output and other messages
+//   4. Use the Error List window to view errors
+//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
+//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
